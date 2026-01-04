@@ -6,22 +6,47 @@ from beir.datasets.data_loader import GenericDataLoader
 from beir.retrieval.evaluation import EvaluateRetrieval
 from datetime import datetime
 
-def create_rerank_prompt(query: str, doc_id: str, doc_text: str) -> str:
-    """Create a pointwise relevance scoring prompt"""
-    return f"""You are an expert relevance assessor. Given a query and a document, rate how relevant the document is to the query.
+def create_rerank_prompt(query: str, doc_id: str, doc_text: str, dataset_name: str = "scifact") -> str:
+    """
+    Create task-specific prompts for different datasets.
+    - Arguana: Looks for COUNTER-ARGUMENTS (opposing views)
+    - Others: Looks for RELEVANCE (standard IR)
+    """
+    
+    # ARGUANA: Counter-Argument Detection
+    if dataset_name == "arguana":
+        return f"""You are an expert debater and argument analyst.
+                Your task is to determine if the document contains a COUNTER-ARGUMENT (opposing view) to the query argument.
 
-Query: {query}
+                Query Argument: {query}
 
-Document: {doc_text[:1500]}
+                Document: {doc_text[:1500]}
 
-Rate the relevance on a scale of 0-10:
-- 0: Completely irrelevant
-- 1-3: Slightly relevant, mentions related topics
-- 4-6: Moderately relevant, partially answers the query
-- 7-9: Highly relevant, directly addresses the query
-- 10: Perfect match, completely answers the query
+                Rate strictly based on whether the document DISAGREES with or OPPOSES the query's argument:
+                - 0: Agrees with the query or is completely unrelated
+                - 1-3: Discusses the topic but does not clearly oppose
+                - 4-6: Presents some opposing points or mild disagreement
+                - 7-9: Clearly argues against the query's position
+                - 10: Directly and strongly refutes the query's argument
 
-Respond with ONLY a single number (0-10), nothing else."""
+                Respond with ONLY a single number (0-10), nothing else."""
+
+    # SCIFACT / NQ / DEFAULT: Standard Relevance
+    else:
+        return f"""You are an expert relevance assessor. Given a query and a document, rate how relevant the document is to the query.
+
+                Query: {query}
+
+                Document: {doc_text[:1500]}
+
+                Rate the relevance on a scale of 0-10:
+                - 0: Completely irrelevant
+                - 1-3: Slightly relevant, mentions related topics
+                - 4-6: Moderately relevant, partially answers the query
+                - 7-9: Highly relevant, directly addresses the query
+                - 10: Perfect match, completely answers the query
+
+                Respond with ONLY a single number (0-10), nothing else."""
 
 def get_llm_score(prompt: str, model: str = "llama3:8b") -> float:
     """Get relevance score from LLM"""
@@ -85,7 +110,7 @@ def rerank_with_llm(dataset_name: str, top_k_rerank: int = 20, num_queries: int 
                 doc = corpus[doc_id]
                 doc_text = f"{doc.get('title', '')} {doc.get('text', '')}"
                 
-                prompt = create_rerank_prompt(query_text, doc_id, doc_text)
+                prompt = create_rerank_prompt(query_text, doc_id, doc_text, dataset_name)
                 score = get_llm_score(prompt)
                 doc_scores[doc_id] = score
         
@@ -137,7 +162,7 @@ if __name__ == "__main__":
     
     # Start with SciFact (smallest, fastest)
     # Adjust num_queries and top_k_rerank based on time constraints
-    for dataset in ["scifact"]:  # Add "arguana", "nq" later
+    for dataset in ["arguana"]: # Add "arguana", "nq" later
         result = rerank_with_llm(
             dataset_name=dataset,
             top_k_rerank=20,    # Re-rank top 20 docs per query
