@@ -175,21 +175,6 @@ python src/step1_bm25_baseline.py
 
 ### 2. Pipeline Overview
 
-```mermaid
-graph LR
-    A[Query] --> B(BM25 Retrieval)
-    B --> C{Top-100 Candidates}
-    C --> D[Re-Ranker Model]
-    D --> E[Sentence-BERT]
-    D --> F[GPT-3.5 / Llama 3]
-    D --> G[Phi-3 / Gemma]
-    E & F & G --> H[Evaluation Metrics]
-    H --> I[NDCG@10 / Precision@3]
-
-```
-
-*(Note: If Mermaid is not supported in your viewer, see the ASCII diagram below)*
-
 ```text
 ┌─────────────┐     ┌──────────────┐     ┌─────────────┐
 │   Query     │────▶│  BM25 Top-100│────▶│  Re-ranker  │
