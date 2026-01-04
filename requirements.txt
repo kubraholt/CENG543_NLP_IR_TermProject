@@ -1,0 +1,51 @@
+torch==2.9.1
+torchvision==0.24.1
+torchaudio==2.9.1
+transformers==4.57.3
+sentence-transformers==5.2.0
+beir==2.2.0
+pyserini==1.2.0
+datasets==4.4.2
+pandas==2.3.3
+scikit-learn==1.7.2
+numpy==2.2.6
+
+# to download datasets
+elasticsearch==9.2.1
+
+"""
+# CENG543 NLP/IR Term Project - Requirements
+# Python 3.10 required
+
+# Deep Learning
+torch==2.9.1
+torchvision==0.24.1
+torchaudio==2.9.1
+
+# Transformers & Embeddings
+transformers==4.57.3
+sentence-transformers==5.2.0
+tokenizers==0.22.1
+
+# Information Retrieval
+beir==2.2.0
+pyserini==1.2.0
+pytrec_eval-terrier==0.5.10
+
+# Data Processing
+datasets==4.4.2
+pandas==2.3.3
+numpy==2.2.6
+
+# Machine Learning
+scikit-learn==1.7.2
+scipy==1.15.3
+
+# LLM APIs
+openai==2.14.0
+
+# Utilities
+tqdm==4.67.1
+requests==2.32.5
+python-dotenv==1.2.1
+"""ollama
